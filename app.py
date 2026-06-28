@@ -5,12 +5,15 @@ its in-cluster /api/now?neighborhood=everywhere (no CORS needed), and renders a 
 styled directory. Cities that are unreachable degrade to "—". Auto-refreshes every 60s.
 """
 import asyncio
+from pathlib import Path
 
 import httpx
 import uvicorn
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse, PlainTextResponse, Response
 from starlette.routing import Route
+
+_OG = (Path(__file__).parent / "og.png").read_bytes()
 
 CITIES = [
     {"slug": "nyc", "brand": "Citi Bike", "city": "New York + Jersey", "flag": "🗽",
@@ -74,6 +77,14 @@ async def home(request):
 <meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris and Mexico City.">
 <meta property="og:title" content="Bikeshare trackers">
 <meta property="og:description" content="Live dock availability across New York, Washington DC, Paris & Mexico City.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bikes.kardol.us">
+<meta property="og:image" content="https://bikes.kardol.us/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bikeshare trackers">
+<meta name="twitter:image" content="https://bikes.kardol.us/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <meta http-equiv="refresh" content="60">
@@ -121,6 +132,10 @@ async def favicon(r):
     return Response(FAVICON, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
 
 
+async def og(r):
+    return Response(_OG, media_type="image/png", headers={"Cache-Control": "public, max-age=86400"})
+
+
 async def healthz(r):
     return PlainTextResponse("ok")
 
@@ -128,6 +143,7 @@ async def healthz(r):
 app = Starlette(routes=[
     Route("/", home),
     Route("/favicon.svg", favicon),
+    Route("/og.png", og),
     Route("/healthz", healthz),
     Route("/ready", healthz),
 ])
