@@ -16,7 +16,7 @@ spec:
       imagePullSecrets: [{name: ghcr-pull}]
       containers:
         - name: bikes-hub
-          image: ghcr.io/kardolus/bikes-hub:v1
+          image: ghcr.io/kardolus/bikes-hub:v2
           imagePullPolicy: IfNotPresent
           ports: [{containerPort: 8000, name: http}]
           readinessProbe: {httpGet: {path: /ready, port: 8000}, initialDelaySeconds: 3, periodSeconds: 15}
