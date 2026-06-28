@@ -1,0 +1,50 @@
+# bikes.kardol.us — the bikeshare hub front door. Server-side aggregates each city's
+# live counts in-cluster (no CORS). ghcr-pull imagePullSecret created out-of-band.
+apiVersion: v1
+kind: Namespace
+metadata: {name: bikes-hub, labels: {kardol.us/group: apps}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: bikes-hub, namespace: bikes-hub, labels: {app: bikes-hub}}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: bikes-hub}}
+  template:
+    metadata: {labels: {app: bikes-hub}}
+    spec:
+      imagePullSecrets: [{name: ghcr-pull}]
+      containers:
+        - name: bikes-hub
+          image: ghcr.io/kardolus/bikes-hub:v1
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000, name: http}]
+          readinessProbe: {httpGet: {path: /ready, port: 8000}, initialDelaySeconds: 3, periodSeconds: 15}
+          livenessProbe: {httpGet: {path: /healthz, port: 8000}, initialDelaySeconds: 5, periodSeconds: 20}
+          resources: {requests: {cpu: 25m, memory: 48Mi}, limits: {memory: 128Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: bikes-hub, namespace: bikes-hub, labels: {app: bikes-hub}}
+spec:
+  selector: {app: bikes-hub}
+  ports: [{name: http, port: 8000, targetPort: 8000}]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bikes-hub
+  namespace: bikes-hub
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: bikes.kardol.us
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: {service: {name: bikes-hub, port: {number: 8000}}}
