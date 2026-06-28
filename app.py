@@ -26,6 +26,8 @@ CITIES = [
      "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.ecobici.svc.cluster.local:8000"},
     {"slug": "chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
      "domain": "divvy.kardol.us", "svc": "http://divvy-web.divvy.svc.cluster.local:8000"},
+    {"slug": "barcelona", "brand": "Bicing", "city": "Barcelona", "flag": "🏖️",
+     "domain": "bicing.kardol.us", "svc": "http://bicing-web.bicing.svc.cluster.local:8000"},
 ]
 
 FAVICON = (
@@ -76,9 +78,9 @@ async def home(request):
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bikeshare trackers · live dock availability</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City and Chicago.">
+<meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago and Barcelona.">
 <meta property="og:title" content="Bikeshare trackers">
-<meta property="og:description" content="Live dock availability across New York, Washington DC, Paris & Mexico City.">
+<meta property="og:description" content="Live dock availability across New York, Washington DC, Paris, Mexico City, Chicago & Barcelona.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://bikes.kardol.us">
 <meta property="og:image" content="https://bikes.kardol.us/og.png">
