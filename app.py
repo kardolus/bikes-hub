@@ -24,6 +24,8 @@ CITIES = [
      "domain": "velib.kardol.us", "svc": "http://velib-web.velib.svc.cluster.local:8000"},
     {"slug": "cdmx", "brand": "Ecobici", "city": "Mexico City", "flag": "🌮",
      "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.ecobici.svc.cluster.local:8000"},
+    {"slug": "chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
+     "domain": "divvy.kardol.us", "svc": "http://divvy-web.divvy.svc.cluster.local:8000"},
 ]
 
 FAVICON = (
@@ -74,7 +76,7 @@ async def home(request):
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bikeshare trackers · live dock availability</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris and Mexico City.">
+<meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City and Chicago.">
 <meta property="og:title" content="Bikeshare trackers">
 <meta property="og:description" content="Live dock availability across New York, Washington DC, Paris & Mexico City.">
 <meta property="og:type" content="website">
