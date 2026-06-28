@@ -5,7 +5,9 @@ its in-cluster /api/now?neighborhood=everywhere (no CORS needed), and renders a 
 styled directory. Cities that are unreachable degrade to "—". Auto-refreshes every 60s.
 """
 import asyncio
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import httpx
 import uvicorn
@@ -23,7 +25,10 @@ CITIES = [
     {"slug": "paris", "brand": "Vélib'", "city": "Paris", "flag": "🗼",
      "domain": "velib.kardol.us", "svc": "http://velib-web.velib.svc.cluster.local:8000"},
     {"slug": "cdmx", "brand": "Ecobici", "city": "Mexico City", "flag": "🌮",
-     "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.ecobici.svc.cluster.local:8000"},
+     "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.ecobici.svc.cluster.local:8000",
+     # Ecobici is the only one of the six that closes overnight (05:00–00:30 local),
+     # so its bike count legitimately bottoms out at night. (tz, open_min, close_min)
+     "hours": ("America/Mexico_City", 5 * 60, 0 * 60 + 30)},
     {"slug": "chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
      "domain": "divvy.kardol.us", "svc": "http://divvy-web.divvy.svc.cluster.local:8000"},
     {"slug": "barcelona", "brand": "Bicing", "city": "Barcelona", "flag": "🏖️",
@@ -55,17 +60,40 @@ async def _gather():
         return await asyncio.gather(*(_fetch(client, c) for c in CITIES))
 
 
+def _service(c):
+    """For a city with overnight hours, return (closed_now, 'opens 5 AM'); else (False, '').
+    Handles a service window that wraps past midnight (e.g. Ecobici 05:00–00:30)."""
+    h = c.get("hours")
+    if not h:
+        return False, ""
+    tz, open_min, close_min = h
+    now = datetime.now(ZoneInfo(tz))
+    t = now.hour * 60 + now.minute
+    is_open = (open_min <= t < close_min) if open_min < close_min else (t >= open_min or t < close_min)
+    oh, om = divmod(open_min, 60)
+    label = f"{oh % 12 or 12} {'AM' if oh < 12 else 'PM'}" if om == 0 else f"{oh:02d}:{om:02d}"
+    return (not is_open), f"opens {label}"
+
+
 def _card(c):
+    closed, opens = _service(c) if c["ok"] else (False, "")
     n = f'{c["bikes"]:,}' if c["ok"] else "—"
     st = f'{c["stations"]:,} stations' if c["ok"] else "offline"
-    live = '<span class="live"></span>live' if c["ok"] else '<span class="off">offline</span>'
+    if not c["ok"]:
+        sub, ind, big = "bikes available now", '<span class="off">offline</span>', "big"
+    elif closed:
+        sub = f'closed overnight · {opens}'
+        ind = '<span class="zzz">●</span>closed'
+        big = "big dim"
+    else:
+        sub, ind, big = "bikes available now", '<span class="live"></span>live', "big"
     return f"""
     <a class="card" href="https://{c['domain']}">
       <div class="chead"><span class="flag">{c['flag']}</span>
         <div><div class="brand">{c['brand']}</div><div class="city">{c['city']}</div></div></div>
-      <div class="big">{n}</div>
-      <div class="sub">bikes available now</div>
-      <div class="foot"><span>{st}</span><span class="ind">{live}</span></div>
+      <div class="{big}">{n}</div>
+      <div class="sub">{sub}</div>
+      <div class="foot"><span>{st}</span><span class="ind">{ind}</span></div>
     </a>"""
 
 
@@ -119,6 +147,8 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 .ind{{display:flex;align-items:center;gap:5px}}
 .live{{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(34,196,126,.6);animation:p 2s infinite}}
 .off{{color:#f0796a}}
+.big.dim{{color:var(--meta)}}
+.zzz{{color:#d8a200;font-size:9px;line-height:1}}
 @keyframes p{{0%{{box-shadow:0 0 0 0 rgba(34,196,126,.5)}}70%{{box-shadow:0 0 0 6px rgba(34,196,126,0)}}100%{{box-shadow:0 0 0 0 rgba(34,196,126,0)}}}}
 footer{{color:var(--meta);font-size:12px;margin-top:36px;font-family:'JetBrains Mono',monospace;text-align:center}}
 footer a{{color:var(--accent);text-decoration:none}}
