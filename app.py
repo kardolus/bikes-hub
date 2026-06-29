@@ -21,9 +21,9 @@ _OG = (Path(__file__).parent / "og.png").read_bytes()
 SUPPORTED = ("en", "es", "fr")
 _LANG_NAMES = {"en": "English", "es": "Español", "fr": "Français"}
 MESSAGES = {
-    "en": {"title": "Bikeshare trackers · live dock availability", "meta_desc": "Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.", "h1": "Bikeshare trackers", "tag": "Live dock availability & 90-day patterns, city by city.", "totals": "{total} bikes available now across {up} live systems", "card_sub": "bikes available now", "card_closed_sub": "closed overnight · {opens}", "svc_opens": "opens {time}", "ind_live": "live", "ind_closed": "closed", "ind_offline": "offline", "stations": "stations", "patterns_h": "Cross-city patterns", "b_busiest_t": "Busiest", "b_busiest_s": "bike-movements per available bike · per day", "b_full_t": "Fullest right now", "b_full_s": "bikes ÷ capacity, open systems", "b_rel_t": "Most reliable", "b_rel_s": "% of time you can grab a bike AND return one", "per_day": "/day", "footer": "unofficial · built on public GBFS feeds · {link} homelab", "lang_aria": "Language"},
-    "es": {"title": "Monitores de bicis compartidas · disponibilidad de anclajes en vivo", "meta_desc": "Disponibilidad de anclajes en vivo y patrones de 90 días en New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires y London.", "h1": "Monitores de bicis compartidas", "tag": "Disponibilidad de anclajes en vivo y patrones de 90 días, ciudad por ciudad.", "totals": "{total} bicis disponibles ahora en {up} sistemas en vivo", "card_sub": "bicis disponibles ahora", "card_closed_sub": "cerrado por la noche · {opens}", "svc_opens": "abre {time}", "ind_live": "en vivo", "ind_closed": "cerrado", "ind_offline": "sin conexión", "stations": "estaciones", "patterns_h": "Patrones entre ciudades", "b_busiest_t": "Más activo", "b_busiest_s": "movimientos de bici por bici disponible · por día", "b_full_t": "Más lleno ahora", "b_full_s": "bicis ÷ capacidad, sistemas abiertos", "b_rel_t": "Más confiable", "b_rel_s": "% del tiempo en que puedes tomar una bici Y devolver una", "per_day": "/día", "footer": "no oficial · basado en feeds públicos GBFS · {link} homelab", "lang_aria": "Idioma"},
-    "fr": {"title": "Suivi vélos en libre-service · bornes libres en direct", "meta_desc": "Disponibilité des bornes libres en direct et tendances sur 90 jours à New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires et London.", "h1": "Suivi vélos en libre-service", "tag": "Bornes libres en direct et tendances sur 90 jours, ville par ville.", "totals": "{total} vélos disponibles maintenant sur {up} systèmes en direct", "card_sub": "vélos disponibles maintenant", "card_closed_sub": "fermé la nuit · {opens}", "svc_opens": "ouvre à {time}", "ind_live": "en direct", "ind_closed": "fermé", "ind_offline": "hors ligne", "stations": "stations", "patterns_h": "Tendances entre villes", "b_busiest_t": "Plus actif", "b_busiest_s": "mouvements de vélos par vélo disponible · par jour", "b_full_t": "Le plus plein maintenant", "b_full_s": "vélos ÷ capacité, systèmes ouverts", "b_rel_t": "Le plus fiable", "b_rel_s": "% du temps où vous pouvez prendre ET rendre un vélo", "per_day": "/jour", "footer": "non officiel · basé sur des flux publics GBFS · {link} homelab", "lang_aria": "Langue"},
+    "en": {"title": "Bikeshare trackers · live dock availability", "meta_desc": "Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.", "h1": "Bikeshare trackers", "tag": "Live dock availability & 90-day patterns, city by city.", "totals": "{total} bikes available now across {up} live systems", "card_sub": "bikes available now", "card_closed_sub": "closed overnight · {opens}", "svc_opens": "opens {time}", "ind_live": "live", "ind_closed": "closed", "ind_offline": "offline", "ind_cached": "cached", "stations": "stations", "patterns_h": "Cross-city patterns", "b_busiest_t": "Busiest", "b_busiest_s": "bike-movements per available bike · per day", "b_full_t": "Fullest right now", "b_full_s": "bikes ÷ capacity, open systems", "b_rel_t": "Most reliable", "b_rel_s": "% of time you can grab a bike AND return one", "per_day": "/day", "footer": "unofficial · built on public GBFS feeds · {link} homelab", "lang_aria": "Language"},
+    "es": {"title": "Monitores de bicis compartidas · disponibilidad de anclajes en vivo", "meta_desc": "Disponibilidad de anclajes en vivo y patrones de 90 días en New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires y London.", "h1": "Monitores de bicis compartidas", "tag": "Disponibilidad de anclajes en vivo y patrones de 90 días, ciudad por ciudad.", "totals": "{total} bicis disponibles ahora en {up} sistemas en vivo", "card_sub": "bicis disponibles ahora", "card_closed_sub": "cerrado por la noche · {opens}", "svc_opens": "abre {time}", "ind_live": "en vivo", "ind_closed": "cerrado", "ind_offline": "sin conexión", "ind_cached": "en caché", "stations": "estaciones", "patterns_h": "Patrones entre ciudades", "b_busiest_t": "Más activo", "b_busiest_s": "movimientos de bici por bici disponible · por día", "b_full_t": "Más lleno ahora", "b_full_s": "bicis ÷ capacidad, sistemas abiertos", "b_rel_t": "Más confiable", "b_rel_s": "% del tiempo en que puedes tomar una bici Y devolver una", "per_day": "/día", "footer": "no oficial · basado en feeds públicos GBFS · {link} homelab", "lang_aria": "Idioma"},
+    "fr": {"title": "Suivi vélos en libre-service · bornes libres en direct", "meta_desc": "Disponibilité des bornes libres en direct et tendances sur 90 jours à New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires et London.", "h1": "Suivi vélos en libre-service", "tag": "Bornes libres en direct et tendances sur 90 jours, ville par ville.", "totals": "{total} vélos disponibles maintenant sur {up} systèmes en direct", "card_sub": "vélos disponibles maintenant", "card_closed_sub": "fermé la nuit · {opens}", "svc_opens": "ouvre à {time}", "ind_live": "en direct", "ind_closed": "fermé", "ind_offline": "hors ligne", "ind_cached": "en cache", "stations": "stations", "patterns_h": "Tendances entre villes", "b_busiest_t": "Plus actif", "b_busiest_s": "mouvements de vélos par vélo disponible · par jour", "b_full_t": "Le plus plein maintenant", "b_full_s": "vélos ÷ capacité, systèmes ouverts", "b_rel_t": "Le plus fiable", "b_rel_s": "% du temps où vous pouvez prendre ET rendre un vélo", "per_day": "/jour", "footer": "non officiel · basé sur des flux publics GBFS · {link} homelab", "lang_aria": "Langue"},
 }
 
 
@@ -129,9 +129,17 @@ def _short(c):
     return _SHORT.get(c["city"], c["city"])
 
 
+# Last-known-good cache (read-through). In-process is enough: the hub is a single replica, so
+# this survives between requests and smooths transient blips (e.g. a city's query cache is cold
+# right after a redeploy and its /api/now exceeds the timeout). It does NOT survive a hub restart
+# — acceptable, since the first successful poll repopulates it. (Swap for Redis only if the hub
+# ever needs to survive restarts or scale to multiple replicas.)
+_LAST = {}  # slug -> last successful out dict
+
+
 async def _get(client, url):
     try:
-        return (await client.get(url, timeout=4.0)).json()
+        return (await client.get(url, timeout=6.0)).json()
     except Exception:
         return None
 
@@ -145,7 +153,7 @@ async def _fetch(client, c):
         _get(client, f"{base}/api/turnover?neighborhood=everywhere"),
         _get(client, f"{base}/api/reliability_nbhd?neighborhood=everywhere"),
     )
-    out = {**c, "ok": False, "bikes": None, "stations": None,
+    out = {**c, "ok": False, "cached": False, "bikes": None, "stations": None,
            "fill": None, "turnover": None, "reliability": None}
     if isinstance(now, dict) and now.get("summary"):
         s = now["summary"]
@@ -163,7 +171,19 @@ async def _fetch(client, c):
         vals = [x["pct"] for x in rel if x.get("pct") is not None]
         if vals:
             out["reliability"] = round(sum(vals) / len(vals))
-    return out
+    prev = _LAST.get(c["slug"])
+    if out["ok"]:
+        # Backfill the slower window metrics from last-good if this round dropped them, so the
+        # cross-city boards don't flicker; then this becomes the new last-good.
+        if prev:
+            for k in ("turnover", "reliability", "fill"):
+                if out[k] is None:
+                    out[k] = prev[k]
+        _LAST[c["slug"]] = out
+        return out
+    if prev:  # live read failed entirely → serve last-known-good
+        return {**prev, "cached": True}
+    return out  # never had data yet
 
 
 def _board(title, sub, rows, key, suffix):
@@ -203,11 +223,15 @@ def _service(c):
 
 
 def _card(c, lang):
-    closed, open_t = _service(c) if c["ok"] else (False, "")
-    n = f'{c["bikes"]:,}' if c["ok"] else "—"
-    st = (f'{c["stations"]:,} ' + t(lang, "stations")) if c["ok"] else t(lang, "ind_offline")
-    if not c["ok"]:
+    cached = c.get("cached")
+    has = c["bikes"] is not None
+    closed, open_t = _service(c) if (has and not cached) else (False, "")
+    n = f'{c["bikes"]:,}' if has else "—"
+    st = (f'{c["stations"]:,} ' + t(lang, "stations")) if c["stations"] is not None else t(lang, "ind_offline")
+    if not has:
         sub, ind, big = t(lang, "card_sub"), f'<span class="off">{t(lang, "ind_offline")}</span>', "big"
+    elif cached:  # live read failed this round — showing the last known value
+        sub, ind, big = t(lang, "card_sub"), f'<span class="cached-dot"></span>{t(lang, "ind_cached")}', "big"
     elif closed:
         sub = t(lang, "card_closed_sub", opens=t(lang, "svc_opens", time=open_t))
         ind = f'<span class="zzz">●</span>{t(lang, "ind_closed")}'
@@ -227,8 +251,8 @@ def _card(c, lang):
 async def home(request):
     lang = pick_lang(request)
     cities = await _gather()
-    total = sum(c["bikes"] for c in cities if c["ok"])
-    up = sum(1 for c in cities if c["ok"])
+    total = sum(c["bikes"] for c in cities if c["bikes"] is not None)
+    up = sum(1 for c in cities if c["bikes"] is not None)
     cards = "".join(_card(c, lang) for c in cities)
     # Cross-city patterns. Busiest/reliability are window metrics (all cities); the live "fullest"
     # board excludes systems that are currently closed overnight (their live fill would read ~0).
@@ -300,6 +324,7 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
   color:var(--meta);font-family:'JetBrains Mono',monospace}}
 .ind{{display:flex;align-items:center;gap:5px}}
 .live{{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(34,196,126,.6);animation:p 2s infinite}}
+.cached-dot{{width:7px;height:7px;border-radius:50%;background:var(--meta)}}
 .off{{color:var(--bad)}}
 .big.dim{{color:var(--meta)}}
 .zzz{{color:#d8a200;font-size:9px;line-height:1}}
