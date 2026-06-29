@@ -49,14 +49,65 @@ FAVICON = (
 )
 
 
-async def _fetch(client, c):
+# Short, distinct row labels for the cross-city boards (the two Ecobicis differ by city).
+_SHORT = {"New York + Jersey": "New York", "Washington, DC": "Washington DC"}
+
+
+def _short(c):
+    return _SHORT.get(c["city"], c["city"])
+
+
+async def _get(client, url):
     try:
-        r = await client.get(f"{c['svc']}/api/now?neighborhood=everywhere", timeout=4.0)
-        s = r.json()["summary"]
-        bikes = (s.get("bikes_available") or 0) + (s.get("ebikes_available") or 0)
-        return {**c, "bikes": bikes, "stations": s.get("stations") or 0, "ok": True}
+        return (await client.get(url, timeout=4.0)).json()
     except Exception:
-        return {**c, "bikes": None, "stations": None, "ok": False}
+        return None
+
+
+async def _fetch(client, c):
+    # Each city app exposes the same endpoints (everywhere scope) — pull live state + the two
+    # window metrics the cross-city boards need; degrade per-field if any call fails/times out.
+    base = c["svc"]
+    now, turn, rel = await asyncio.gather(
+        _get(client, f"{base}/api/now?neighborhood=everywhere"),
+        _get(client, f"{base}/api/turnover?neighborhood=everywhere"),
+        _get(client, f"{base}/api/reliability_nbhd?neighborhood=everywhere"),
+    )
+    out = {**c, "ok": False, "bikes": None, "stations": None,
+           "fill": None, "turnover": None, "reliability": None}
+    if isinstance(now, dict) and now.get("summary"):
+        s = now["summary"]
+        b, e, d = (s.get("bikes_available") or 0), (s.get("ebikes_available") or 0), (s.get("docks_available") or 0)
+        out["bikes"] = b + e
+        out["stations"] = s.get("stations") or 0
+        cap = b + e + d
+        out["fill"] = round(100 * (b + e) / cap) if cap else None
+        out["ok"] = True
+    if isinstance(turn, list):
+        vals = [x["per_bike_day"] for x in turn if x.get("per_bike_day")]
+        if vals:
+            out["turnover"] = round(sum(vals) / len(vals), 1)  # mean across areas
+    if isinstance(rel, list):
+        vals = [x["pct"] for x in rel if x.get("pct") is not None]
+        if vals:
+            out["reliability"] = round(sum(vals) / len(vals))
+    return out
+
+
+def _board(title, sub, rows, key, suffix):
+    """A ranked horizontal-bar leaderboard of cities by `key` (highest first)."""
+    rows = [c for c in rows if c.get(key) is not None]
+    if not rows:
+        return ""
+    rows.sort(key=lambda c: -c[key])
+    mx = rows[0][key] or 1
+    bars = "".join(
+        f'<div class="prow"><span class="pcity">{c["flag"]} {_short(c)}</span>'
+        f'<span class="ptrack"><span class="pbar" style="width:{max(4, round(100 * c[key] / mx))}%"></span></span>'
+        f'<span class="pval">{c[key]}{suffix}</span></div>'
+        for c in rows
+    )
+    return f'<div class="pcard"><h3>{title}</h3><p class="psub">{sub}</p>{bars}</div>'
 
 
 async def _gather():
@@ -106,6 +157,16 @@ async def home(request):
     total = sum(c["bikes"] for c in cities if c["ok"])
     up = sum(1 for c in cities if c["ok"])
     cards = "".join(_card(c) for c in cities)
+    # Cross-city patterns. Busiest/reliability are window metrics (all cities); the live "fullest"
+    # board excludes systems that are currently closed overnight (their live fill would read ~0).
+    open_now = [c for c in cities if not _service(c)[0]]
+    patterns = (
+        '<p class="psec-h">Cross-city patterns</p><div class="pgrid">'
+        + _board("Busiest", "bike-movements per available bike · per day", cities, "turnover", "/day")
+        + _board("Fullest right now", "bikes ÷ capacity, open systems", open_now, "fill", "%")
+        + _board("Most reliable", "% of time you can grab a bike AND return one", cities, "reliability", "%")
+        + "</div>"
+    )
     html = f"""<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bikeshare trackers · live dock availability</title>
@@ -154,6 +215,17 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 .big.dim{{color:var(--meta)}}
 .zzz{{color:#d8a200;font-size:9px;line-height:1}}
 @keyframes p{{0%{{box-shadow:0 0 0 0 rgba(34,196,126,.5)}}70%{{box-shadow:0 0 0 6px rgba(34,196,126,0)}}100%{{box-shadow:0 0 0 0 rgba(34,196,126,0)}}}}
+.patterns{{margin-top:40px}}
+.psec-h{{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--meta);margin:0 0 14px}}
+.pgrid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}}
+.pcard{{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px}}
+.pcard h3{{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin:0 0 2px}}
+.psub{{color:var(--meta);font-size:11.5px;margin:0 0 14px}}
+.prow{{display:grid;grid-template-columns:118px 1fr auto;align-items:center;gap:10px;margin:8px 0;font-size:12.5px}}
+.pcity{{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.ptrack{{height:7px;background:#21262d;border-radius:4px;overflow:hidden}}
+.pbar{{height:100%;background:var(--accent);border-radius:4px}}
+.pval{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg)}}
 footer{{color:var(--meta);font-size:12px;margin-top:36px;font-family:'JetBrains Mono',monospace;text-align:center}}
 footer a{{color:var(--accent);text-decoration:none}}
 </style></head><body><div class="wrap">
@@ -161,6 +233,7 @@ footer a{{color:var(--accent);text-decoration:none}}
   <p class="tag">Live dock availability &amp; 90-day patterns, city by city.</p>
   <p class="totals"><b>{total:,}</b> bikes available now across <b>{up}</b> live systems</p>
   <div class="grid">{cards}</div>
+  <div class="patterns">{patterns}</div>
   <footer>unofficial · built on public GBFS feeds · <a href="https://kardol.us">kardol.us</a> homelab</footer>
 </div></body></html>"""
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
