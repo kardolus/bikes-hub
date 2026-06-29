@@ -99,6 +99,28 @@ FAVICON = (
 )
 
 
+# Theme: default to the OS/browser preference (prefers-color-scheme); a manual toggle overrides
+# and is remembered in localStorage. Runs before paint (no flash); keeps following the OS live
+# until the visitor makes an explicit choice. Module constant so the JS braces aren't f-string-escaped.
+_THEME_JS = """<script>
+(function(){
+  try {
+    var s = localStorage.getItem('theme');
+    var os = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (s ? s === 'dark' : os) document.documentElement.classList.add('dark');
+  } catch (e) {}
+})();
+function toggleTheme(){
+  var d = document.documentElement.classList.toggle('dark');
+  try { localStorage.setItem('theme', d ? 'dark' : 'light'); } catch (e) {}
+}
+try {
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e){
+    if (!localStorage.getItem('theme')) document.documentElement.classList.toggle('dark', e.matches);
+  });
+} catch (e) {}
+</script>"""
+
 # Short, distinct row labels for the cross-city boards (the two Ecobicis differ by city).
 _SHORT = {"New York + Jersey": "New York", "Washington, DC": "Washington DC"}
 
@@ -223,10 +245,13 @@ async def home(request):
         f'onchange="location.search=\'?lang=\'+this.value">'
         + "".join(f'<option value="{code}"{" selected" if code == lang else ""}>{name}</option>'
                   for code, name in _LANG_NAMES.items())
-        + "</select></div>"
+        + '</select>'
+        + '<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Toggle light/dark">◐</button>'
+        + "</div>"
     )
     html = f"""<!doctype html><html lang="{lang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+{_THEME_JS}
 <title>{t(lang, "title")}</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="description" content="{t(lang, "meta_desc")}">
@@ -244,14 +269,17 @@ async def home(request):
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <meta http-equiv="refresh" content="60">
 <style>
-:root{{--bg:#0d1117;--fg:#e2e8f0;--meta:#8b949e;--card:#161b22;--border:#21262d;--border2:#30363d;--accent:#22c47e}}
+:root{{--bg:#f8f9fa;--fg:#14171e;--meta:#6f737b;--card:#f3f4f6;--border:#e2e5e8;--border2:#c8cdd3;--accent:#1da46c;--track:#e2e6ea;--bad:#c0392b}}
+html.dark{{--bg:#0d1117;--fg:#e2e8f0;--meta:#8b949e;--card:#161b22;--border:#21262d;--border2:#30363d;--accent:#22c47e;--track:#21262d;--bad:#f0796a}}
 *{{box-sizing:border-box}}
 body{{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0;min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;padding:56px 20px}}
+  display:flex;flex-direction:column;align-items:center;padding:56px 20px;transition:background .2s,color .2s}}
 .wrap{{width:100%;max-width:1000px}}
-.topbar{{display:flex;justify-content:flex-end;margin-bottom:10px}}
+.topbar{{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px}}
 .lang-pick{{height:32px;box-sizing:border-box;background:var(--card);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--fg);padding:0 26px 0 10px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238b949e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}}
 .lang-pick:hover{{border-color:var(--accent)}}
+.theme-toggle{{height:32px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-size:15px;line-height:1;color:var(--fg);padding:0 10px}}
+.theme-toggle:hover{{border-color:var(--accent)}}
 .hero{{display:flex;align-items:center;gap:12px;margin-bottom:6px}}
 .logo{{width:34px;height:34px}}
 h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin:0}}
@@ -272,7 +300,7 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
   color:var(--meta);font-family:'JetBrains Mono',monospace}}
 .ind{{display:flex;align-items:center;gap:5px}}
 .live{{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(34,196,126,.6);animation:p 2s infinite}}
-.off{{color:#f0796a}}
+.off{{color:var(--bad)}}
 .big.dim{{color:var(--meta)}}
 .zzz{{color:#d8a200;font-size:9px;line-height:1}}
 @keyframes p{{0%{{box-shadow:0 0 0 0 rgba(34,196,126,.5)}}70%{{box-shadow:0 0 0 6px rgba(34,196,126,0)}}100%{{box-shadow:0 0 0 0 rgba(34,196,126,0)}}}}
@@ -284,7 +312,7 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 .psub{{color:var(--meta);font-size:11.5px;margin:0 0 14px}}
 .prow{{display:grid;grid-template-columns:118px 1fr auto;align-items:center;gap:10px;margin:8px 0;font-size:12.5px}}
 .pcity{{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.ptrack{{height:7px;background:#21262d;border-radius:4px;overflow:hidden}}
+.ptrack{{height:7px;background:var(--track);border-radius:4px;overflow:hidden}}
 .pbar{{height:100%;background:var(--accent);border-radius:4px}}
 .pval{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg)}}
 footer{{color:var(--meta);font-size:12px;margin-top:36px;font-family:'JetBrains Mono',monospace;text-align:center}}
