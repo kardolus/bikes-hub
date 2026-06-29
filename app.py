@@ -17,6 +17,56 @@ from starlette.routing import Route
 
 _OG = (Path(__file__).parent / "og.png").read_bytes()
 
+# ── i18n (same en/es/fr + browser-detection logic as the city apps) ──
+SUPPORTED = ("en", "es", "fr")
+_LANG_NAMES = {"en": "English", "es": "Español", "fr": "Français"}
+MESSAGES = {
+    "en": {"title": "Bikeshare trackers · live dock availability", "meta_desc": "Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.", "h1": "Bikeshare trackers", "tag": "Live dock availability & 90-day patterns, city by city.", "totals": "{total} bikes available now across {up} live systems", "card_sub": "bikes available now", "card_closed_sub": "closed overnight · {opens}", "svc_opens": "opens {time}", "ind_live": "live", "ind_closed": "closed", "ind_offline": "offline", "stations": "stations", "patterns_h": "Cross-city patterns", "b_busiest_t": "Busiest", "b_busiest_s": "bike-movements per available bike · per day", "b_full_t": "Fullest right now", "b_full_s": "bikes ÷ capacity, open systems", "b_rel_t": "Most reliable", "b_rel_s": "% of time you can grab a bike AND return one", "per_day": "/day", "footer": "unofficial · built on public GBFS feeds · {link} homelab", "lang_aria": "Language"},
+    "es": {"title": "Monitores de bicis compartidas · disponibilidad de anclajes en vivo", "meta_desc": "Disponibilidad de anclajes en vivo y patrones de 90 días en New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires y London.", "h1": "Monitores de bicis compartidas", "tag": "Disponibilidad de anclajes en vivo y patrones de 90 días, ciudad por ciudad.", "totals": "{total} bicis disponibles ahora en {up} sistemas en vivo", "card_sub": "bicis disponibles ahora", "card_closed_sub": "cerrado por la noche · {opens}", "svc_opens": "abre {time}", "ind_live": "en vivo", "ind_closed": "cerrado", "ind_offline": "sin conexión", "stations": "estaciones", "patterns_h": "Patrones entre ciudades", "b_busiest_t": "Más activo", "b_busiest_s": "movimientos de bici por bici disponible · por día", "b_full_t": "Más lleno ahora", "b_full_s": "bicis ÷ capacidad, sistemas abiertos", "b_rel_t": "Más confiable", "b_rel_s": "% del tiempo en que puedes tomar una bici Y devolver una", "per_day": "/día", "footer": "no oficial · basado en feeds públicos GBFS · {link} homelab", "lang_aria": "Idioma"},
+    "fr": {"title": "Suivi vélos en libre-service · bornes libres en direct", "meta_desc": "Disponibilité des bornes libres en direct et tendances sur 90 jours à New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires et London.", "h1": "Suivi vélos en libre-service", "tag": "Bornes libres en direct et tendances sur 90 jours, ville par ville.", "totals": "{total} vélos disponibles maintenant sur {up} systèmes en direct", "card_sub": "vélos disponibles maintenant", "card_closed_sub": "fermé la nuit · {opens}", "svc_opens": "ouvre à {time}", "ind_live": "en direct", "ind_closed": "fermé", "ind_offline": "hors ligne", "stations": "stations", "patterns_h": "Tendances entre villes", "b_busiest_t": "Plus actif", "b_busiest_s": "mouvements de vélos par vélo disponible · par jour", "b_full_t": "Le plus plein maintenant", "b_full_s": "vélos ÷ capacité, systèmes ouverts", "b_rel_t": "Le plus fiable", "b_rel_s": "% du temps où vous pouvez prendre ET rendre un vélo", "per_day": "/jour", "footer": "non officiel · basé sur des flux publics GBFS · {link} homelab", "lang_aria": "Langue"},
+}
+
+
+def _norm(lang):
+    if not lang:
+        return None
+    code = lang.strip().lower().split("-")[0]
+    return code if code in SUPPORTED else None
+
+
+def _accept_lang(header):
+    if not header:
+        return None
+    parsed = []
+    for i, part in enumerate(header.split(",")):
+        tok = part.split(";")
+        q = 1.0
+        for p in tok[1:]:
+            p = p.strip()
+            if p.startswith("q="):
+                try:
+                    q = float(p[2:])
+                except ValueError:
+                    q = 0.0
+        parsed.append((q, i, tok[0].strip()))
+    for _q, _i, tag in sorted(parsed, key=lambda x: (-x[0], x[1])):
+        c = _norm(tag)
+        if c:
+            return c
+    return None
+
+
+def pick_lang(request):
+    # ?lang= → cookie → Accept-Language (browser wins when supported) → English.
+    return (_norm(request.query_params.get("lang")) or _norm(request.cookies.get("lang"))
+            or _accept_lang(request.headers.get("accept-language")) or "en")
+
+
+def t(lang, key, **fmt):
+    v = MESSAGES.get(lang, MESSAGES["en"]).get(key) or MESSAGES["en"].get(key, key)
+    return v.format(**fmt) if fmt else v
+
+
 CITIES = [
     {"slug": "nyc", "brand": "Citi Bike", "city": "New York + Jersey", "flag": "🗽",
      "domain": "citi.kardol.us", "svc": "http://citibike-web.citibike.svc.cluster.local:8000"},
@@ -116,32 +166,32 @@ async def _gather():
 
 
 def _service(c):
-    """For a city with overnight hours, return (closed_now, 'opens 5 AM'); else (False, '').
-    Handles a service window that wraps past midnight (e.g. Ecobici 05:00–00:30)."""
+    """For a city with overnight hours, return (closed_now, open_time_24h); else (False, '').
+    open_time is locale-neutral (e.g. '5:00'); the caller localizes via svc_opens. Handles a
+    window that wraps past midnight (e.g. Ecobici 05:00–00:30)."""
     h = c.get("hours")
     if not h:
         return False, ""
     tz, open_min, close_min = h
     now = datetime.now(ZoneInfo(tz))
-    t = now.hour * 60 + now.minute
-    is_open = (open_min <= t < close_min) if open_min < close_min else (t >= open_min or t < close_min)
+    mins = now.hour * 60 + now.minute
+    is_open = (open_min <= mins < close_min) if open_min < close_min else (mins >= open_min or mins < close_min)
     oh, om = divmod(open_min, 60)
-    label = f"{oh % 12 or 12} {'AM' if oh < 12 else 'PM'}" if om == 0 else f"{oh:02d}:{om:02d}"
-    return (not is_open), f"opens {label}"
+    return (not is_open), f"{oh}:{om:02d}"
 
 
-def _card(c):
-    closed, opens = _service(c) if c["ok"] else (False, "")
+def _card(c, lang):
+    closed, open_t = _service(c) if c["ok"] else (False, "")
     n = f'{c["bikes"]:,}' if c["ok"] else "—"
-    st = f'{c["stations"]:,} stations' if c["ok"] else "offline"
+    st = (f'{c["stations"]:,} ' + t(lang, "stations")) if c["ok"] else t(lang, "ind_offline")
     if not c["ok"]:
-        sub, ind, big = "bikes available now", '<span class="off">offline</span>', "big"
+        sub, ind, big = t(lang, "card_sub"), f'<span class="off">{t(lang, "ind_offline")}</span>', "big"
     elif closed:
-        sub = f'closed overnight · {opens}'
-        ind = '<span class="zzz">●</span>closed'
+        sub = t(lang, "card_closed_sub", opens=t(lang, "svc_opens", time=open_t))
+        ind = f'<span class="zzz">●</span>{t(lang, "ind_closed")}'
         big = "big dim"
     else:
-        sub, ind, big = "bikes available now", '<span class="live"></span>live', "big"
+        sub, ind, big = t(lang, "card_sub"), f'<span class="live"></span>{t(lang, "ind_live")}', "big"
     return f"""
     <a class="card" href="https://{c['domain']}">
       <div class="chead"><span class="flag">{c['flag']}</span>
@@ -153,25 +203,33 @@ def _card(c):
 
 
 async def home(request):
+    lang = pick_lang(request)
     cities = await _gather()
     total = sum(c["bikes"] for c in cities if c["ok"])
     up = sum(1 for c in cities if c["ok"])
-    cards = "".join(_card(c) for c in cities)
+    cards = "".join(_card(c, lang) for c in cities)
     # Cross-city patterns. Busiest/reliability are window metrics (all cities); the live "fullest"
     # board excludes systems that are currently closed overnight (their live fill would read ~0).
     open_now = [c for c in cities if not _service(c)[0]]
     patterns = (
-        '<p class="psec-h">Cross-city patterns</p><div class="pgrid">'
-        + _board("Busiest", "bike-movements per available bike · per day", cities, "turnover", "/day")
-        + _board("Fullest right now", "bikes ÷ capacity, open systems", open_now, "fill", "%")
-        + _board("Most reliable", "% of time you can grab a bike AND return one", cities, "reliability", "%")
+        f'<p class="psec-h">{t(lang, "patterns_h")}</p><div class="pgrid">'
+        + _board(t(lang, "b_busiest_t"), t(lang, "b_busiest_s"), cities, "turnover", t(lang, "per_day"))
+        + _board(t(lang, "b_full_t"), t(lang, "b_full_s"), open_now, "fill", "%")
+        + _board(t(lang, "b_rel_t"), t(lang, "b_rel_s"), cities, "reliability", "%")
         + "</div>"
     )
-    html = f"""<!doctype html><html lang="en"><head>
+    picker = (
+        f'<div class="topbar"><select class="lang-pick" aria-label="{t(lang, "lang_aria")}" '
+        f'onchange="location.search=\'?lang=\'+this.value">'
+        + "".join(f'<option value="{code}"{" selected" if code == lang else ""}>{name}</option>'
+                  for code, name in _LANG_NAMES.items())
+        + "</select></div>"
+    )
+    html = f"""<!doctype html><html lang="{lang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bikeshare trackers · live dock availability</title>
+<title>{t(lang, "title")}</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta name="description" content="Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.">
+<meta name="description" content="{t(lang, "meta_desc")}">
 <meta property="og:title" content="Bikeshare trackers">
 <meta property="og:description" content="Live dock availability across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires & London.">
 <meta property="og:type" content="website">
@@ -191,6 +249,9 @@ async def home(request):
 body{{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0;min-height:100vh;
   display:flex;flex-direction:column;align-items:center;padding:56px 20px}}
 .wrap{{width:100%;max-width:1000px}}
+.topbar{{display:flex;justify-content:flex-end;margin-bottom:10px}}
+.lang-pick{{height:32px;box-sizing:border-box;background:var(--card);border:1px solid var(--border2);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--fg);padding:0 26px 0 10px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238b949e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}}
+.lang-pick:hover{{border-color:var(--accent)}}
 .hero{{display:flex;align-items:center;gap:12px;margin-bottom:6px}}
 .logo{{width:34px;height:34px}}
 h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin:0}}
@@ -229,14 +290,18 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 footer{{color:var(--meta);font-size:12px;margin-top:36px;font-family:'JetBrains Mono',monospace;text-align:center}}
 footer a{{color:var(--accent);text-decoration:none}}
 </style></head><body><div class="wrap">
-  <div class="hero"><svg class="logo" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg><h1>Bikeshare trackers</h1></div>
-  <p class="tag">Live dock availability &amp; 90-day patterns, city by city.</p>
-  <p class="totals"><b>{total:,}</b> bikes available now across <b>{up}</b> live systems</p>
+  {picker}
+  <div class="hero"><svg class="logo" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg><h1>{t(lang, "h1")}</h1></div>
+  <p class="tag">{t(lang, "tag")}</p>
+  <p class="totals">{t(lang, "totals", total=f"<b>{total:,}</b>", up=f"<b>{up}</b>")}</p>
   <div class="grid">{cards}</div>
   <div class="patterns">{patterns}</div>
-  <footer>unofficial · built on public GBFS feeds · <a href="https://kardol.us">kardol.us</a> homelab</footer>
+  <footer>{t(lang, "footer", link='<a href="https://kardol.us">kardol.us</a>')}</footer>
 </div></body></html>"""
-    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
+    resp = HTMLResponse(html, headers={"Cache-Control": "no-store", "Vary": "Cookie, Accept-Language"})
+    if _norm(request.query_params.get("lang")):
+        resp.set_cookie("lang", lang, max_age=31536000, path="/", samesite="lax")
+    return resp
 
 
 async def favicon(r):
