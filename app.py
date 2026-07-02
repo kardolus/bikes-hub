@@ -69,24 +69,24 @@ def t(lang, key, **fmt):
 
 CITIES = [
     {"slug": "nyc", "brand": "Citi Bike", "city": "New York + Jersey", "flag": "🗽",
-     "domain": "citi.kardol.us", "svc": "http://citibike-web.citibike.svc.cluster.local:8000"},
+     "domain": "citi.kardol.us", "svc": "http://citibike-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "dc", "brand": "CaBi", "city": "Washington, DC", "flag": "🏛️",
-     "domain": "cabi.kardol.us", "svc": "http://cabi-web.cabi.svc.cluster.local:8000"},
+     "domain": "cabi.kardol.us", "svc": "http://cabi-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "paris", "brand": "Vélib'", "city": "Paris", "flag": "🗼",
-     "domain": "velib.kardol.us", "svc": "http://velib-web.velib.svc.cluster.local:8000"},
+     "domain": "velib.kardol.us", "svc": "http://velib-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "cdmx", "brand": "Ecobici", "city": "Mexico City", "flag": "🌮",
-     "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.ecobici.svc.cluster.local:8000",
+     "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.bikeshare.svc.cluster.local:8000",
      # Ecobici is the only one of the six that closes overnight (05:00–00:30 local),
      # so its bike count legitimately bottoms out at night. (tz, open_min, close_min)
      "hours": ("America/Mexico_City", 5 * 60, 0 * 60 + 30)},
     {"slug": "chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
-     "domain": "divvy.kardol.us", "svc": "http://divvy-web.divvy.svc.cluster.local:8000"},
+     "domain": "divvy.kardol.us", "svc": "http://divvy-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "barcelona", "brand": "Bicing", "city": "Barcelona", "flag": "🏖️",
-     "domain": "bicing.kardol.us", "svc": "http://bicing-web.bicing.svc.cluster.local:8000"},
+     "domain": "bicing.kardol.us", "svc": "http://bicing-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "baires", "brand": "Ecobici", "city": "Buenos Aires", "flag": "🧉",
-     "domain": "ecobici-ba.kardol.us", "svc": "http://ecobici-ba-web.ecobici-ba.svc.cluster.local:8000"},
+     "domain": "ecobici-ba.kardol.us", "svc": "http://ecobici-ba-web.bikeshare.svc.cluster.local:8000"},
     {"slug": "london", "brand": "Santander Cycles", "city": "London", "flag": "🎡",
-     "domain": "boris.kardol.us", "svc": "http://boris-web.boris.svc.cluster.local:8000"},
+     "domain": "boris.kardol.us", "svc": "http://boris-web.bikeshare.svc.cluster.local:8000"},
 ]
 
 FAVICON = (
