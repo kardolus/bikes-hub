@@ -157,11 +157,13 @@ async def _fetch(client, c):
            "fill": None, "turnover": None, "reliability": None}
     if isinstance(now, dict) and now.get("summary"):
         s = now["summary"]
-        b, e, d = (s.get("bikes_available") or 0), (s.get("ebikes_available") or 0), (s.get("docks_available") or 0)
-        out["bikes"] = b + e
+        # bikes_available is the GBFS total (classic + e-bikes); ebikes_available is a
+        # SUBSET of it, so don't add them — that double-counts the e-bikes.
+        b, d = (s.get("bikes_available") or 0), (s.get("docks_available") or 0)
+        out["bikes"] = b
         out["stations"] = s.get("stations") or 0
-        cap = b + e + d
-        out["fill"] = round(100 * (b + e) / cap) if cap else None
+        cap = b + d
+        out["fill"] = round(100 * b / cap) if cap else None
         out["ok"] = True
     if isinstance(turn, list):
         vals = [x["per_bike_day"] for x in turn if x.get("per_bike_day")]
