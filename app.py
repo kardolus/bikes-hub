@@ -344,7 +344,7 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 .pval{{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--fg)}}
 footer{{color:var(--meta);font-size:12px;margin-top:36px;font-family:'JetBrains Mono',monospace;text-align:center}}
 footer a{{color:var(--accent);text-decoration:none}}
-</style></head><body><div class="wrap">
+</style><script defer src="https://analytics.kardol.us/script.js" data-website-id="d8a9d68f-3676-42f9-9b7a-ce921face2e4"></script></head><body><div class="wrap">
   {picker}
   <div class="hero"><svg class="logo" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg><h1>{t(lang, "h1")}</h1></div>
   <p class="tag">{t(lang, "tag")}</p>
