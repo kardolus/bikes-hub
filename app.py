@@ -21,9 +21,9 @@ _OG = (Path(__file__).parent / "og.png").read_bytes()
 SUPPORTED = ("en", "es", "fr")
 _LANG_NAMES = {"en": "English", "es": "Español", "fr": "Français"}
 MESSAGES = {
-    "en": {"title": "Bikeshare trackers · live dock availability", "meta_desc": "Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.", "h1": "Bikeshare trackers", "tag": "Live dock availability & 90-day patterns, city by city.", "totals": "{total} bikes available now across {up} live systems", "card_sub": "bikes available now", "card_closed_sub": "closed overnight · {opens}", "svc_opens": "opens {time}", "ind_live": "live", "ind_closed": "closed", "ind_offline": "offline", "ind_cached": "cached", "stations": "stations", "patterns_h": "Cross-city patterns", "b_busiest_t": "Busiest", "b_busiest_s": "bike-movements per available bike · per day", "b_full_t": "Fullest right now", "b_full_s": "bikes ÷ capacity, open systems", "b_rel_t": "Most reliable", "b_rel_s": "% of time you can grab a bike AND return one", "per_day": "/day", "footer": "unofficial · built on public GBFS feeds · {link} homelab", "lang_aria": "Language"},
-    "es": {"title": "Monitores de bicis compartidas · disponibilidad de anclajes en vivo", "meta_desc": "Disponibilidad de anclajes en vivo y patrones de 90 días en New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires y London.", "h1": "Monitores de bicis compartidas", "tag": "Disponibilidad de anclajes en vivo y patrones de 90 días, ciudad por ciudad.", "totals": "{total} bicis disponibles ahora en {up} sistemas en vivo", "card_sub": "bicis disponibles ahora", "card_closed_sub": "cerrado por la noche · {opens}", "svc_opens": "abre {time}", "ind_live": "en vivo", "ind_closed": "cerrado", "ind_offline": "sin conexión", "ind_cached": "en caché", "stations": "estaciones", "patterns_h": "Patrones entre ciudades", "b_busiest_t": "Más activo", "b_busiest_s": "movimientos de bici por bici disponible · por día", "b_full_t": "Más lleno ahora", "b_full_s": "bicis ÷ capacidad, sistemas abiertos", "b_rel_t": "Más confiable", "b_rel_s": "% del tiempo en que puedes tomar una bici Y devolver una", "per_day": "/día", "footer": "no oficial · basado en feeds públicos GBFS · {link} homelab", "lang_aria": "Idioma"},
-    "fr": {"title": "Suivi vélos en libre-service · bornes libres en direct", "meta_desc": "Disponibilité des bornes libres en direct et tendances sur 90 jours à New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires et London.", "h1": "Suivi vélos en libre-service", "tag": "Bornes libres en direct et tendances sur 90 jours, ville par ville.", "totals": "{total} vélos disponibles maintenant sur {up} systèmes en direct", "card_sub": "vélos disponibles maintenant", "card_closed_sub": "fermé la nuit · {opens}", "svc_opens": "ouvre à {time}", "ind_live": "en direct", "ind_closed": "fermé", "ind_offline": "hors ligne", "ind_cached": "en cache", "stations": "stations", "patterns_h": "Tendances entre villes", "b_busiest_t": "Plus actif", "b_busiest_s": "mouvements de vélos par vélo disponible · par jour", "b_full_t": "Le plus plein maintenant", "b_full_s": "vélos ÷ capacité, systèmes ouverts", "b_rel_t": "Le plus fiable", "b_rel_s": "% du temps où vous pouvez prendre ET rendre un vélo", "per_day": "/jour", "footer": "non officiel · basé sur des flux publics GBFS · {link} homelab", "lang_aria": "Langue"},
+    "en": {"nemo": "Stations in Nemo", "title": "Bikeshare trackers · live dock availability", "meta_desc": "Live bikeshare dock availability and 90-day patterns across New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires and London.", "h1": "Bikeshare trackers", "tag": "Live dock availability & 90-day patterns, city by city.", "totals": "{total} bikes available now across {up} live systems", "card_sub": "bikes available now", "card_closed_sub": "closed overnight · {opens}", "svc_opens": "opens {time}", "ind_live": "live", "ind_closed": "closed", "ind_offline": "offline", "ind_cached": "cached", "stations": "stations", "patterns_h": "Cross-city patterns", "b_busiest_t": "Busiest", "b_busiest_s": "bike-movements per available bike · per day", "b_full_t": "Fullest right now", "b_full_s": "bikes ÷ capacity, open systems", "b_rel_t": "Most reliable", "b_rel_s": "% of time you can grab a bike AND return one", "per_day": "/day", "footer": "unofficial · built on public GBFS feeds · {link} homelab", "lang_aria": "Language"},
+    "es": {"nemo": "Estaciones en Nemo", "title": "Monitores de bicis compartidas · disponibilidad de anclajes en vivo", "meta_desc": "Disponibilidad de anclajes en vivo y patrones de 90 días en New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires y London.", "h1": "Monitores de bicis compartidas", "tag": "Disponibilidad de anclajes en vivo y patrones de 90 días, ciudad por ciudad.", "totals": "{total} bicis disponibles ahora en {up} sistemas en vivo", "card_sub": "bicis disponibles ahora", "card_closed_sub": "cerrado por la noche · {opens}", "svc_opens": "abre {time}", "ind_live": "en vivo", "ind_closed": "cerrado", "ind_offline": "sin conexión", "ind_cached": "en caché", "stations": "estaciones", "patterns_h": "Patrones entre ciudades", "b_busiest_t": "Más activo", "b_busiest_s": "movimientos de bici por bici disponible · por día", "b_full_t": "Más lleno ahora", "b_full_s": "bicis ÷ capacidad, sistemas abiertos", "b_rel_t": "Más confiable", "b_rel_s": "% del tiempo en que puedes tomar una bici Y devolver una", "per_day": "/día", "footer": "no oficial · basado en feeds públicos GBFS · {link} homelab", "lang_aria": "Idioma"},
+    "fr": {"nemo": "Stations dans Nemo", "title": "Suivi vélos en libre-service · bornes libres en direct", "meta_desc": "Disponibilité des bornes libres en direct et tendances sur 90 jours à New York, Washington DC, Paris, Mexico City, Chicago, Barcelona, Buenos Aires et London.", "h1": "Suivi vélos en libre-service", "tag": "Bornes libres en direct et tendances sur 90 jours, ville par ville.", "totals": "{total} vélos disponibles maintenant sur {up} systèmes en direct", "card_sub": "vélos disponibles maintenant", "card_closed_sub": "fermé la nuit · {opens}", "svc_opens": "ouvre à {time}", "ind_live": "en direct", "ind_closed": "fermé", "ind_offline": "hors ligne", "ind_cached": "en cache", "stations": "stations", "patterns_h": "Tendances entre villes", "b_busiest_t": "Plus actif", "b_busiest_s": "mouvements de vélos par vélo disponible · par jour", "b_full_t": "Le plus plein maintenant", "b_full_s": "vélos ÷ capacité, systèmes ouverts", "b_rel_t": "Le plus fiable", "b_rel_s": "% du temps où vous pouvez prendre ET rendre un vélo", "per_day": "/jour", "footer": "non officiel · basé sur des flux publics GBFS · {link} homelab", "lang_aria": "Langue"},
 }
 
 
@@ -68,24 +68,24 @@ def t(lang, key, **fmt):
 
 
 CITIES = [
-    {"slug": "nyc", "brand": "Citi Bike", "city": "New York + Jersey", "flag": "🗽",
+    {"slug": "nyc", "guide": "bike-new-york", "brand": "Citi Bike", "city": "New York + Jersey", "flag": "🗽",
      "domain": "citi.kardol.us", "svc": "http://citibike-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "dc", "brand": "CaBi", "city": "Washington, DC", "flag": "🏛️",
+    {"slug": "dc", "guide": "bike-washington", "brand": "CaBi", "city": "Washington, DC", "flag": "🏛️",
      "domain": "cabi.kardol.us", "svc": "http://cabi-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "paris", "brand": "Vélib'", "city": "Paris", "flag": "🗼",
+    {"slug": "paris", "guide": "bike-paris", "brand": "Vélib'", "city": "Paris", "flag": "🗼",
      "domain": "velib.kardol.us", "svc": "http://velib-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "cdmx", "brand": "Ecobici", "city": "Mexico City", "flag": "🌮",
+    {"slug": "cdmx", "guide": "bike-mexico-city", "brand": "Ecobici", "city": "Mexico City", "flag": "🌮",
      "domain": "ecobici.kardol.us", "svc": "http://ecobici-web.bikeshare.svc.cluster.local:8000",
      # Ecobici is the only one of the six that closes overnight (05:00–00:30 local),
      # so its bike count legitimately bottoms out at night. (tz, open_min, close_min)
      "hours": ("America/Mexico_City", 5 * 60, 0 * 60 + 30)},
-    {"slug": "chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
+    {"slug": "chicago", "guide": "bike-chicago", "brand": "Divvy", "city": "Chicago", "flag": "🌆",
      "domain": "divvy.kardol.us", "svc": "http://divvy-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "barcelona", "brand": "Bicing", "city": "Barcelona", "flag": "🏖️",
+    {"slug": "barcelona", "guide": "bike-barcelona", "brand": "Bicing", "city": "Barcelona", "flag": "🏖️",
      "domain": "bicing.kardol.us", "svc": "http://bicing-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "baires", "brand": "Ecobici", "city": "Buenos Aires", "flag": "🧉",
+    {"slug": "baires", "guide": "bike-buenos-aires", "brand": "Ecobici", "city": "Buenos Aires", "flag": "🧉",
      "domain": "ecobici-ba.kardol.us", "svc": "http://ecobici-ba-web.bikeshare.svc.cluster.local:8000"},
-    {"slug": "london", "brand": "Santander Cycles", "city": "London", "flag": "🎡",
+    {"slug": "london", "guide": "bike-london", "brand": "Santander Cycles", "city": "London", "flag": "🎡",
      "domain": "boris.kardol.us", "svc": "http://boris-web.bikeshare.svc.cluster.local:8000"},
 ]
 
@@ -240,14 +240,18 @@ def _card(c, lang):
         big = "big dim"
     else:
         sub, ind, big = t(lang, "card_sub"), f'<span class="live"></span>{t(lang, "ind_live")}', "big"
+    # Under the card, not in it (the card is one link): the same stations as a layer in Nemo, the
+    # owner's maps app. "in Nemo", never anything that could read as the operator's own offer.
+    nemo = (f'<a class="nemo" href="https://nemo.town/app?guide={c["guide"]}" rel="noopener">{t(lang, "nemo")}</a>'
+            if c.get("guide") else "")
     return f"""
-    <a class="card" href="https://{c['domain']}">
+    <div class="cell"><a class="card" href="https://{c['domain']}">
       <div class="chead"><span class="flag">{c['flag']}</span>
         <div><div class="brand">{c['brand']}</div><div class="city">{c['city']}</div></div></div>
       <div class="{big}">{n}</div>
       <div class="sub">{sub}</div>
       <div class="foot"><span>{st}</span><span class="ind">{ind}</span></div>
-    </a>"""
+    </a>{nemo}</div>"""
 
 
 async def home(request):
@@ -313,6 +317,10 @@ h1{{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin
 .totals{{color:var(--meta);font-size:13px;font-family:'JetBrains Mono',monospace;margin-bottom:28px}}
 .totals b{{color:var(--accent)}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}}
+.cell{{display:flex;flex-direction:column}}
+.cell .card{{flex:1}}
+.nemo{{align-self:flex-start;margin:6px 2px 0;font-size:12px;color:var(--meta);text-decoration:underline;text-underline-offset:2px}}
+.nemo:hover{{color:var(--fg)}}
 .card{{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);
   border-radius:14px;padding:20px;transition:transform .15s,border-color .15s,box-shadow .15s}}
 .card:hover{{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.25)}}
